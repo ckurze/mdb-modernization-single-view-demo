@@ -1,0 +1,15 @@
+version: '3.6'
+services:
+ web_dev:
+  build: .
+  ports:
+   - "4000:4000"
+  volumes:
+   - .:/app
+  environment:
+   - ENV=development
+   - PORT=4000
+   - DB=mongodb://host.docker.internal:27017/insurance
+networks:
+ default:
+  name: web_dev

@@ -1,0 +1,4 @@
+Flask==1.0.2 
+requests==2.18.1
+simplejson==3.16.0
+Flask-PyMongo==2.3.0

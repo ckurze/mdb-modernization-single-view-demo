@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: insurance-service-deployment
+  labels:
+    app: insurance-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: insurance-service
+  template:
+    metadata:
+      labels:
+        app: insurance-service
+    spec:
+      containers:
+      - name: insurance-service
+        image: ckurze/insurance-service
+        ports:
+        - containerPort: 4000
+          protocol: TCP
+        env:
+        - name: ENV
+          value: "development"
+        - name: PORT
+          value: "4000"
+        - name: DB
+          value: "mongodb://my-replica-set-0.my-replica-set-svc.mongodb.svc.cluster.local:27017,my-replica-set-1.my-replica-set-svc.mongodb.svc.cluster.local:27017,my-replica-set-2.my-replica-set-svc.mongodb.svc.cluster.local:27017/insurance?replicaSet=my-replica-set"

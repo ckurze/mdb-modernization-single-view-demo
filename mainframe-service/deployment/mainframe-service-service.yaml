@@ -1,0 +1,10 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: mainframe-service # Service name
+spec:
+  type: LoadBalancer
+  selector:
+    env: mainframe-service # Label selector. The Service targets Pods that use this label
+  ports:
+  - port: 8080 # Port of the service (internally)
