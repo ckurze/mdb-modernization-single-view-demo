@@ -31,6 +31,7 @@ TBD
 ## Containerized Environment, e.g. Google Kubernetes Engine or OpenShift
 
 __0. Preconditions__
+
 A working Kubernetes cluster exists. All operations assume that we use Google Kubernets Engine. All commands assume that you are in the root directory of this repository and a cluster ```mdb-insurance-demo``` has been spun up in zone ```europe-west3-a``` it belongs to the project ```ckurze-k8s-operator-234311```. 
 
 Login to Google Cloud (this will open a browser window to authenticate yourself against GCP):
@@ -54,10 +55,10 @@ Some operations require admin privileges, so create a cluster-admin role binding
 kubectl create clusterrolebinding cluster-admin-binding --clusterrole cluster-admin --user <YOUR.GCP.ACCOUNT@gmail.com>
 ```
 
-#######kubectl create clusterrolebinding cluster-admin-binding --clusterrole cluster-admin --user ck.mongo@gmail.com
-
 __1. Install Mainframe / Oracle__
+
 __1.1 Create Oracle Instance in Kubernetes__
+
 The insurance core system runs on Oracle today. The demo will use a containerized version. It can be installed as following:
 ```
 kubectl apply -f oracle/deployment/oracle-deployment.yaml 
@@ -67,18 +68,17 @@ kubectl apply -f oracle/deployment/oracle-service.yaml
 Double-check that the pods and service have been created:
 ```
 kubectl get pods
-
 NAME       READY     STATUS    RESTARTS   AGE
 oracledb   1/1       Running   0          4m
 
 kubectl get services
-
 NAME               TYPE           CLUSTER-IP     EXTERNAL-IP      PORT(S)          AGE
 kubernetes         ClusterIP      10.23.240.1    <none>           443/TCP          54m
 oracledb-service   LoadBalancer   10.23.251.48   35.242.219.126   1521:31039/TCP   23m
 ```
 
 __1.2 Create the Schemata in Oracle for Car and Home Insurance__
+
 Connect to Oracle, e.g. via SQLDeveloper, using the EXTERNAL-IP outlined above on PORT 1521. Username is ```system```, the password is ```qwer1234``` (as defined in ```oracle-deployment.yaml```). Execute the following commands that will create two users/schemas in Oracle for car and home insurance, respectively:
 
 ```
@@ -90,6 +90,7 @@ GRANT ALL PRIVILEGES TO homeinsurance;
 ```
 
 __1.3 Generate the Sample Data__
+
 The generation of sample data is performed in three steps:
 * Generate the Customers to a CSV file in the output directory
 * Generate Car Insurance Data and upload into Oracle as well as CSV files in the output directory
@@ -131,9 +132,11 @@ python faker_home_insurance.py 35.242.219.126 1521 qwer1234 50000
 ```
 
 __2. Install MongoDB OpsManager & MongoDB ReplicaSet__
+
 Install a MongoDB OpsManager following the instructions of [Install a Simple Test Ops Manager Installation](https://docs.opsmanager.mongodb.com/current/tutorial/install-simple-test-deployment/)
 
 __2.1 Generate API Key and Configure IP Whitelist for External Access to OpsManager API__
+
 * Log in to OpsManager
 * Click your username in the top right of the screen and choose Account
 * Click the tab Public API Access
@@ -141,6 +144,7 @@ __2.1 Generate API Key and Configure IP Whitelist for External Access to OpsMana
 * Add a whitelist entry for your Kubernetes Cluster (for GCP you find it when you click on your Kuberentes Cluster in Google Console -> Endpoint (e.g. 35.198.84.76 - the Whitelist entry should be 35.0.0.0/8).
 
 __2.2 Install MongoDB Enterprise Kubernetes Operator into Your Cluster__
+
 * Create the namespace ```mongodb``` via ```kubectl create namespace mongodb```
 * Follow the instructions outlined in [Install the MongoDB Enterprise Kubernetes Operator](https://docs.mongodb.com/kubernetes-operator/stable/tutorial/install-k8s-operator/)
   __Note:__ If you deploy into an OpenShift environment, remember to set the parameter ```MANAGED_SECURITY_CONTEXT``` to ```'true' ``` (note the quotes).
@@ -167,6 +171,7 @@ kubectl -n mongodb \
 ```
 
 __2.3 Install a MongoDB ReplicaSet__
+
 Modify the file ```samples/minimal/replica-set.yaml```:
 ```
 ---
@@ -206,14 +211,17 @@ kubectl apply -f samples/minimal/replica-set.yaml
 If any errors occur, check the logs of the pods forming the workload ```mongodb-enterprise-operator``` or, if the database starts to get created, of ```my-replica-set```.
 
 __3. Configure Data Load from Oracle to MongoDB__
+
 __3.1 Execute Initial Data Load from Oracle to MongoDB__
 
 __3.2 Start Change Data Capture from Oraclt to MongoDB__
 
 __4. Install Mainframe Simulation__
+
 The following steps will install a service to encapsulate the mainframe. It is a Spring Boot application in combination with a web application designed to look like a mainframe.
 
 __4.1 Install Mainframe Service__
+
 Adopt the configuration of ```mainframe-service/deployment/mainframe-service-deployment.yaml``` to match the IP address of your Oracle database in the Kubernetes Cluster:
 ```
 apiVersion: v1
@@ -245,13 +253,13 @@ kubectl apply -f mainframe-service/deployment/mainframe-service-service.yaml
 The public IP address will depend on the service creation. The following endpoints should work now:
 ```
 # List of all customers:
-http://35.234.79.85:8080/car/customer/all
+http://35.234.79.XXX:8080/car/customer/all
 
 # Individual customer:
-http://35.234.79.85:8080/car/customer/C000014831
+http://35.234.79.XXX:8080/car/customer/C000014831
 
 # Individual policy:
-http://35.234.79.85:8080/car/policy/PC_000000002
+http://35.234.79.XXX:8080/car/policy/PC_000000002
 ```
 
 __4.2 Install Mainframe Web Application__
@@ -259,6 +267,7 @@ __4.2 Install Mainframe Web Application__
 __5. Install Modern Insurance Portal__
 
 __5.1 Install Insurance Service__
+
 Adopt the configuration of ```insurance-service/deployment/insurance-service-deployment.yaml``` to match the MongoDB ReplicaSet in your Kubernetes Cluster:
 ```
 apiVersion: apps/v1
@@ -291,6 +300,7 @@ spec:
         - name: DB
           value: "mongodb://my-replica-set-0.my-replica-set-svc.mongodb.svc.cluster.local:27017,my-replica-set-1.my-replica-set-svc.mongodb.svc.cluster.local:27017,my-replica-set-2.my-replica-set-svc.mongodb.svc.cluster.local:27017/insurance?replicaSet=my-replica-set"
 ```
+
 Install the deployment as well as the service into the Kubernetes cluster. It will map the service to port 8080:
 ```
 kubectl apply -f insurance-service/deployment/insurance-service-deployment.yaml 
@@ -300,15 +310,15 @@ kubectl apply -f insurance-service/deployment/insurance-service-service.yaml
 The public IP address will depend on the service creation. The following endpoints should work now:
 ```
 # List of all customers (paginated with 100 customers):
-http://35.246.137.155:4000/customer
-http://35.246.137.155:4000/customer?page=2
-http://35.246.137.155:4000/customer?page=3
+http://35.246.137.XXX:4000/customer
+http://35.246.137.XXX:4000/customer?page=2
+http://35.246.137.XXX:4000/customer?page=3
 
 # All parameters, except 'page' are transformed into a query.
 # Get customer with particular ID:
-http://35.246.137.155:4000/customer?customer_id=C000038970
+http://35.246.137.XXX:4000/customer?customer_id=C000038970
 # Get customer with a particular home insurance policy:
-http://35.246.137.155:4000/customer?home_insurance.policy_id=P000003753
+http://35.246.137.XXX:4000/customer?home_insurance.policy_id=P000003753
 ```
 
 __5.2 Install Insurance Web Application__
