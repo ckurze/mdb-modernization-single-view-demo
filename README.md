@@ -133,7 +133,7 @@ python faker_home_insurance.py 35.242.219.126 1521 qwer1234 50000
 __1.4 Apply SQL Triggers and Key Constraints__
 
 Create Primary and Foregin Keys as well as Triggers in Oracle to reflect Change Data Capture.
-Execute the SQL code provided in home_insurance_oracle_triggers_and_keys.sql as well as car_insurance_oracle_triggers_and_keys.sql in the sql_triggers_and_keys folder. These scripts will create triggers that update the last_change timestamp for each insert or update.
+Execute the SQL code provided in ```home_insurance_oracle_triggers_and_keys.sql``` as well as ```car_insurance_oracle_triggers_and_keys.sql``` in the ```oracle_sql_triggers_keys``` folder. These scripts will create triggers that update the last_change timestamp for each insert or update.
 
 __2. Install MongoDB OpsManager & MongoDB ReplicaSet__
 
