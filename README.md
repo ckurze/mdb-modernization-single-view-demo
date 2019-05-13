@@ -130,7 +130,7 @@ python faker_car_insurance.py 35.242.219.126 1521 qwer1234 50000
 #       The maximum number is 256136, as the file home_insurance.csv is taken as a basis and it contains 256136 rows.
 python faker_home_insurance.py 35.242.219.126 1521 qwer1234 50000
 ```
-__1.4 Apply SQL Triggers and Key Constraints
+__1.4 Apply SQL Triggers and Key Constraints__
 
 Create Primary and Foregin Keys as well as Triggers in Oracle to reflect Change Data Capture.
 Execute the SQL code provided in home_insurance_oracle_triggers_and_keys.sql as well as car_insurance_oracle_triggers_and_keys.sql in the sql_triggers_and_keys folder. These scripts will create triggers that update the last_change timestamp for each insert or update.
