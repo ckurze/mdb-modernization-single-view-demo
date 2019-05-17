@@ -1,0 +1,11 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: oracledb-service # Service name
+spec:
+  type: LoadBalancer
+  selector:
+    env: oracledb # Label selector. The Service targets Pods that use this label
+  ports:
+  - port: 1521 # Port used to access the Service from within the cluster.
+    targetPort: 1521 # Port opened by targeted Pods

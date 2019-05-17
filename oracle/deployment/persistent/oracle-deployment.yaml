@@ -1,0 +1,32 @@
+apiVersion: v1
+kind: Pod
+metadata:
+    name: oracledb
+    labels:
+      env: oracledb
+spec:
+  securityContext:
+    fsGroup: 1000
+  volumes:
+  - name: dshm
+    emptyDir:
+      medium: Memory
+  - name: data
+    persistentVolumeClaim:
+      claimName: data-volumeclaim
+    emptyDir:
+  containers:
+  - image: felixreichenbach/oracledb:11.2.0.2-xe
+    name: oracledb
+    volumeMounts:
+      - mountPath: /dev/shm
+        name: dshm
+      - mountPath: /u01/app/oracle/oradata
+        name: data
+    lifecycle:
+          postStart:
+            exec:
+              command: ["/bin/sh", "-c", "chown -R oracle /u01/app/oracle"]
+    env:
+      - name: ORACLE_PWD
+        value: "qwer1234"
