@@ -26,6 +26,7 @@ spec:
     lifecycle:
           postStart:
             exec:
+            # Maybe optional after adding fsGroup: 1000 -> to be verified
               command: ["/bin/sh", "-c", "chown -R oracle /u01/app/oracle"]
     env:
       - name: ORACLE_PWD
