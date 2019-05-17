@@ -57,12 +57,33 @@ kubectl create clusterrolebinding cluster-admin-binding --clusterrole cluster-ad
 
 __1. Install Mainframe / Oracle__
 
-__1.1 Create Oracle Instance in Kubernetes__
+__1.1 Option 1: Create Ephemeral Oracle Instance in Kubernetes__
 
 The insurance core system runs on Oracle today. The demo will use a containerized version. It can be installed as following:
 ```
 kubectl apply -f oracle/deployment/oracle-deployment.yaml 
 kubectl apply -f oracle/deployment/oracle-service.yaml
+```
+
+Double-check that the pods and service have been created:
+```
+kubectl get pods
+NAME       READY     STATUS    RESTARTS   AGE
+oracledb   1/1       Running   0          4m
+
+kubectl get services
+NAME               TYPE           CLUSTER-IP     EXTERNAL-IP      PORT(S)          AGE
+kubernetes         ClusterIP      10.23.240.1    <none>           443/TCP          54m
+oracledb-service   LoadBalancer   10.23.251.48   35.242.219.126   1521:31039/TCP   23m
+```
+
+__1.2 Option 2: Create Persistent Oracle Instance in Kubernetes__
+
+The insurance core system runs on Oracle today. The demo will use a containerized version which uses a persistent volume. It can be installed as following:
+```
+kubectl apply -f oracle/deployment/oracle-service.yaml
+kubectl apply -f oracle/deployment/oracle-volumeClaim.yaml
+kubectl apply -f oracle/deployment/oracle-deployment.yaml
 ```
 
 Double-check that the pods and service have been created:
