@@ -12,7 +12,7 @@ fake_at = Factory.create('de_AT')
 fake_ch = Factory.create('de_CH') 
 
 from mimesis import Transport
-transport_de = Transport(locale='de')
+transport_de = Transport('de')
 
 import sys
 
