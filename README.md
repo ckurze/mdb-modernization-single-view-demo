@@ -79,23 +79,26 @@ oracledb-service   LoadBalancer   10.23.251.48   35.242.219.126   1521:31039/TCP
 
 __1.2 Option 2: Create Persistent Oracle Instance in Kubernetes__
 
-The insurance core system runs on Oracle today. The demo will use a containerized version which uses a persistent volume. It can be installed as following:
+The insurance core system runs on Oracle today. The demo will use a containerized version which uses a statefulSet with a persistent volume. It can be installed as following:
 ```
-kubectl apply -f oracle/deployment/oracle-service.yaml
-kubectl apply -f oracle/deployment/oracle-volumeClaim.yaml
-kubectl apply -f oracle/deployment/oracle-deployment.yaml
+kubectl apply -f oracle/deployment/persistent/oracle-statefulSet.yaml
 ```
 
 Double-check that the pods and service have been created:
 ```
-kubectl get pods
-NAME       READY     STATUS    RESTARTS   AGE
-oracledb   1/1       Running   0          4m
+kubectl get all
+NAME                            READY   STATUS    RESTARTS   AGE
+pod/oracledb-7fd5b4bf74-mj2kd   1/1     Running   0          8m2s
 
-kubectl get services
-NAME               TYPE           CLUSTER-IP     EXTERNAL-IP      PORT(S)          AGE
-kubernetes         ClusterIP      10.23.240.1    <none>           443/TCP          54m
-oracledb-service   LoadBalancer   10.23.251.48   35.242.219.126   1521:31039/TCP   23m
+NAME                       TYPE           CLUSTER-IP    EXTERNAL-IP     PORT(S)          AGE
+service/kubernetes         ClusterIP      10.47.240.1   <none>          443/TCP          7h24m
+service/oracledb-service   LoadBalancer   10.47.251.7   35.189.67.242   1521:30016/TCP   116m
+
+NAME                       DESIRED   CURRENT   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/oracledb   1         1         1            1           8m2s
+
+NAME                                  DESIRED   CURRENT   READY   AGE
+replicaset.apps/oracledb-7fd5b4bf74   1         1         1       8m3s
 ```
 
 __1.2 Create the Schemata in Oracle for Car and Home Insurance__
