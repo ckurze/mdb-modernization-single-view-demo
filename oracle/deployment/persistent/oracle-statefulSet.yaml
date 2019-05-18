@@ -32,6 +32,7 @@ metadata:
   labels:
     app: oracledb
 spec:
+  replicas: 1
   selector:
     matchLabels:
       app: oracledb
@@ -48,8 +49,11 @@ spec:
       - image: felixreichenbach/oracledb:11.2.0.2-xe
         name: oracledb
         env:
-          - name: ORACLE_PWD
-            value: "qwer1234"
+        - name: ORACLE_PWD
+          valueFrom:
+            secretKeyRef:
+              name: oracle-pass
+              key: password
         volumeMounts:
           - mountPath: /dev/shm
             name: dshm

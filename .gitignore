@@ -5,3 +5,4 @@ WorkingMaterials_NoCommit/
 target
 .DS_Store
 .vscode
+oracle/deployment/persistent/kustomization.yaml
