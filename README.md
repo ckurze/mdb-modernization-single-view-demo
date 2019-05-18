@@ -80,8 +80,30 @@ oracledb-service   LoadBalancer   10.23.251.48   35.242.219.126   1521:31039/TCP
 __1.2 Option 2: Create Persistent Oracle Instance in Kubernetes__
 
 The insurance core system runs on Oracle today. The demo will use a containerized version which uses a statefulSet with a persistent volume. It can be installed as following:
+
+Create a Kubernetes Secret:
+
 ```
-kubectl apply -f oracle/deployment/persistent/oracle-statefulSet.yaml
+cat <<EOF >./kustomization.yaml
+secretGenerator:
+- name: oracle-pass
+  literals:
+  - password=YOUR_PASSWORD
+EOF
+```
+Then add the deloyment yaml as a resource:
+
+```
+cat <<EOF >> kustomization.yaml
+resources:
+- oracle-statefulSet.yaml
+EOF
+```
+
+Deploy the Oracle Instance:
+
+```
+kubectl apply -k .
 ```
 
 Double-check that the pods and service have been created:
