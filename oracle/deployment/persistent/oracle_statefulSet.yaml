@@ -40,9 +40,10 @@ spec:
       labels:
         app: oracledb
     spec:
-      securityContext:
-        runAsGroup: 1000
-        fsGroup: 1000
+#      securityContext:
+#        runAsUser: 1000
+#        runAsGroup: 1000
+#        fsGroup: 1000
       containers:
       - image: felixreichenbach/oracledb:11.2.0.2-xe
         name: oracledb
@@ -55,10 +56,9 @@ spec:
           - mountPath: /u01/app/oracle/oradata
             name: data
         lifecycle:
-#              postStart:
-#                exec:
-                # Maybe optional after adding fsGroup: 1000 -> to be verified
-                  #command: ["/bin/sh", "-c", "chown -R oracle /u01/app/oracle"]
+              postStart:
+                exec:
+                  command: ["/bin/sh", "-c", "chown -R oracle /u01/app/oracle/oradata"]
       volumes:
       - metadata:
         name: dshm
