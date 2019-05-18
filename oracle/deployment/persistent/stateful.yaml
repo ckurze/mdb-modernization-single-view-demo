@@ -1,0 +1,69 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: oracledb-service # Service name
+spec:
+  type: LoadBalancer
+  selector:
+    app: oracledb # Label selector. The Service targets Pods that use this label
+  ports:
+  - port: 1521 # Port used to access the Service from within the cluster.
+    targetPort: 1521 # Port opened by targeted Pods
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: data-volumeclaim
+  labels:
+    app: oracledb
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 2Gi
+
+---
+apiVersion: apps/v1 # for versions before 1.9.0 use apps/v1beta2
+kind: Deployment
+metadata:
+  name: oracledb
+  labels:
+    app: oracledb
+spec:
+  selector:
+    matchLabels:
+      app: oracledb
+  template:
+    metadata:
+      labels:
+        app: oracledb
+    spec:
+      securityContext:
+        runAsGroup: 1000
+        fsGroup: 1000
+      containers:
+      - image: felixreichenbach/oracledb:11.2.0.2-xe
+        name: oracledb
+        env:
+          - name: ORACLE_PWD
+            value: "qwer1234"
+        volumeMounts:
+          - mountPath: /dev/shm
+            name: dshm
+          - mountPath: /u01/app/oracle/oradata
+            name: data
+        lifecycle:
+#              postStart:
+#                exec:
+                # Maybe optional after adding fsGroup: 1000 -> to be verified
+                  #command: ["/bin/sh", "-c", "chown -R oracle /u01/app/oracle"]
+      volumes:
+      - metadata:
+        name: dshm
+        emptyDir:
+          medium: Memory
+      - name: data
+        persistentVolumeClaim:
+          claimName: data-volumeclaim
