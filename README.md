@@ -89,18 +89,13 @@ secretGenerator:
 - name: oracle-pass
   literals:
   - password=YOUR_PASSWORD
-EOF
-```
-Then add the deloyment yaml as a resource:
-
-```
-cat <<EOF >> kustomization.yaml
 resources:
-- oracle-statefulSet.yaml
+- oracle-deployment.yaml
+- mainframe-deployment.yaml
 EOF
 ```
 
-Deploy the Oracle Instance:
+Deploy the Oracle database and the mainframe service:
 
 ```
 kubectl apply -k .
@@ -109,18 +104,21 @@ kubectl apply -k .
 Double-check that the pods and service have been created:
 ```
 kubectl get all
-NAME                            READY   STATUS    RESTARTS   AGE
-pod/oracledb-7fd5b4bf74-mj2kd   1/1     Running   0          8m2s
+pod/mainframe-65c4575898-q6jzx   1/1     Running   0          102s
+pod/oracledb-774446f779-pr9lf    1/1     Running   0          102s
 
-NAME                       TYPE           CLUSTER-IP    EXTERNAL-IP     PORT(S)          AGE
-service/kubernetes         ClusterIP      10.47.240.1   <none>          443/TCP          7h24m
-service/oracledb-service   LoadBalancer   10.47.251.7   35.189.67.242   1521:30016/TCP   116m
+NAME                        TYPE           CLUSTER-IP      EXTERNAL-IP    PORT(S)          AGE
+service/kubernetes          ClusterIP      10.55.240.1     <none>         443/TCP          51m
+service/mainframe-service   LoadBalancer   10.55.245.70    34.65.36.157   8080:31236/TCP   102s
+service/oracledb-service    LoadBalancer   10.55.245.171   <pending>      1521:30371/TCP   102s
 
-NAME                       DESIRED   CURRENT   UP-TO-DATE   AVAILABLE   AGE
-deployment.apps/oracledb   1         1         1            1           8m2s
+NAME                        DESIRED   CURRENT   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/mainframe   1         1         1            1           102s
+deployment.apps/oracledb    1         1         1            1           102s
 
-NAME                                  DESIRED   CURRENT   READY   AGE
-replicaset.apps/oracledb-7fd5b4bf74   1         1         1       8m3s
+NAME                                   DESIRED   CURRENT   READY   AGE
+replicaset.apps/mainframe-65c4575898   1         1         1       102s
+replicaset.apps/oracledb-774446f779    1         1         1       102s
 ```
 
 __1.2 Create the Schemata in Oracle for Car and Home Insurance__
