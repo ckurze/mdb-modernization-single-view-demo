@@ -1,0 +1,7 @@
+secretGenerator:
+- name: oracle-pass
+  literals:
+  - password=YOUR_PASSWORD
+resources:
+- ./mainframe-oracle/deployment/persistent/oracle-deployment.yaml
+- ./mainframe-service/deployment/mainframe-deployment.yaml
