@@ -81,21 +81,20 @@ __1.2 Option 2: Create Persistent Oracle Instance in Kubernetes__
 
 The insurance core system runs on Oracle today. The demo will use a containerized version which uses a statefulSet with a persistent volume. It can be installed as following:
 
-Create a Kubernetes Secret:
+The deployment can be configured using the "kustomization.yaml" file in the root directory.
+Currently changing the password for the `SYSTEM`account of the oracle database can be configured only.
 
 ```
-cat <<EOF >./kustomization.yaml
 secretGenerator:
 - name: oracle-pass
   literals:
   - password=YOUR_PASSWORD
 resources:
-- oracle-deployment.yaml
-- mainframe-deployment.yaml
-EOF
+- ./mainframe-oracle/deployment/persistent/oracle-deployment.yaml
+- ./mainframe-service/deployment/mainframe-deployment.yaml
 ```
 
-Deploy the Oracle database and the mainframe service:
+Deploy the Oracle database and the mainframe service by executing the following command in the root directory:
 
 ```
 kubectl apply -k .
