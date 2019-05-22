@@ -1,9 +1,12 @@
 package com.mongodb.c4c.mainframe.controller;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -16,6 +19,7 @@ import com.mongodb.c4c.mainframe.entity.CarCustomer;
 import com.mongodb.c4c.mainframe.entity.CarPolicy;
 import com.mongodb.c4c.mainframe.serivce.CarInsuranceService;
 
+@CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/car")
 public class CarInsuranceController {
@@ -42,13 +46,32 @@ public class CarInsuranceController {
     		produces=MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public Iterable<CarCustomer> getAllCustomers() {
-    		return carInsuranceService.getCarCustomers();
+    		Iterable<CarCustomer> result = carInsuranceService.getCarCustomers();
+    		if (result != null) {
+    			return result;
+    		}
+    		
+    		return Collections.emptyList();
     }
 
     // ---------------------------
     // -------- Policy -----------
     // ---------------------------
     
+    @RequestMapping(
+    		value="/policy/all", 
+    		method=RequestMethod.GET,
+    		produces=MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public Iterable<CarPolicy> getAllPolicies() {
+		Iterable<CarPolicy> result = carInsuranceService.getAllCarPolicies();
+		if (result != null) {
+			return result;
+		}
+		
+		return Collections.emptyList();
+    }
+
     @RequestMapping(
     		value="/policy/{policyId}", 
     		method=RequestMethod.GET,
@@ -64,7 +87,12 @@ public class CarInsuranceController {
     		produces=MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public Iterable<CarPolicy> getPoliciesByCustomerId(@PathVariable("customerId") String customerId) {
-    		return carInsuranceService.getCarPoliciesByCustomer(customerId);
+    		Iterable<CarPolicy> result = carInsuranceService.getCarPoliciesByCustomer(customerId);
+    		if (result != null) {
+    			return result;
+    		}
+    		
+    		return Collections.emptyList();
     }
 
     @RequestMapping(
@@ -96,7 +124,12 @@ public class CarInsuranceController {
     		produces=MediaType.APPLICATION_JSON_VALUE)
     	@ResponseBody
     	public Iterable<CarClaim> getClaimsByPolicyId(@PathVariable("policyId") String policyId) {
-    		return carInsuranceService.getCarClaimsByPolicyId(policyId);
+		Iterable<CarClaim> result = carInsuranceService.getCarClaimsByPolicyId(policyId);
+		if (result != null) {
+			return result;
+		}
+		
+		return Collections.emptyList();
     	}
     	
        @RequestMapping(

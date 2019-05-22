@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mainframe-portal
+  labels:
+    app: mainframe-portal
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mainframe-portal
+  template:
+    metadata:
+      labels:
+        app: mainframe-portal
+    spec:
+      containers:
+        - name: mainframe-portal
+          image: ckurze/mainframe-portal
+          ports:
+            - containerPort: 3000
+

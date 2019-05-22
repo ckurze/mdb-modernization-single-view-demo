@@ -40,6 +40,10 @@ public class CarInsuranceService {
 		return carPolicyRepository.findById(policyId);
 	}
 	
+	public Iterable<CarPolicy> getAllCarPolicies() {
+		return carPolicyRepository.findAll();
+	}
+	
 	public Iterable<CarClaim> getCarClaimsByPolicyId(String policyId) {
 		return carClaimRepository.findByPolicyId(policyId);
 	}
