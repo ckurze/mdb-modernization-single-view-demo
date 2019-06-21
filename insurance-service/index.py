@@ -2,6 +2,7 @@ import os
 import sys
 import requests
 from flask import jsonify, request, make_response, send_from_directory
+from flask_cors import CORS
 
 ROOT_PATH = os.path.dirname(os.path.realpath(__file__))
 os.environ.update({'ROOT_PATH': ROOT_PATH})
@@ -34,5 +35,6 @@ def static_proxy(path):
 
 
 if __name__ == '__main__':
+    cors = CORS(app, resources={r"/*": {"origins": "*"}})
     app.config['DEBUG'] = os.environ.get('ENV') == 'development' # Debug mode if development env
     app.run(host='0.0.0.0', port=int(PORT)) # Run the app

@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: insurance-portal-deployment
+  labels:
+    app: insurance-portal
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: insurance-portal
+  template:
+    metadata:
+      labels:
+        app: insurance-portal
+    spec:
+      containers:
+        - name: insurance-portal
+          image: ckurze/insurance-portal
+          ports:
+            - containerPort: 3000
+

@@ -12,7 +12,7 @@ With the "Create Car Insurance Claim' screen a new claim can be created. The for
 
 ![create-car-insurance-claim-screen](doc/create-car-insurance-claim-screen.png)
 
-## Development mode
+## Development and Test
 
 Run the application via `npm start`
 
@@ -31,7 +31,7 @@ Open a browser pointing at http://localhost:3000/
 
 ## Production build
 
-In order to create a production build run the following command from the directory `mainframe-portal`. This will create a folder named build
+In order to create a production build run the following command from the directory `mainframe-portal`. This will create a folder named `build`.
 
 ```
 host$ docker run -it --rm -v $(pwd):/home/app -w /home/app node:9.5 /bin/bash -c "npm install; npm run build"
@@ -55,12 +55,20 @@ build/
 The repository includes a Dockerfile to package the mainframe-portal as container.
 
 Replace `ckurze/mainframe-portal` with whatever name you like:
-
 ```
-host$ cd packaging
 host$ docker build -t ckurze/mainframe-portal .
 ```
-Then run the application with
+
+Optionally, push into the docker repository:
+```
+docker login
+
+docker push ckurze/mainframe-portal
+```
+
+## Run the Service
+
+After building the docker image, it can be run with:
 ```
 host$ docker run -d -p 3000:3000 --name=mainframe-portal ckurze/mainframe-portal
 ```
