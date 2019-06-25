@@ -18,11 +18,21 @@ http://localhost:4000/customer
 http://localhost:4000/customer?page=2
 http://localhost:4000/customer?page=3
 
-# All parameters, except 'page' and 'customers_paer_page' are transformed into a query.
+# All parameters, except 'page' and 'customers_per_page' are transformed into a query.
 # Get customer with particular ID:
 http://localhost:4000/customer?customer_id=C000038970
 # Get customer with a particular home insurance policy:
 http://localhost:4000/customer?home_insurance.policy_id=P000003753
+
+
+# List of all customers (NOT paginated):
+http://localhost:4000/customer/all
+
+# All parameters, except 'page' and 'customers_per_page' are transformed into a query.
+# Get customer with particular ID:
+http://localhost:4000/customer/all?customer_id=C000038970
+# Get customer with a particular home insurance policy:
+http://localhost:4000/customer/all?home_insurance.policy_id=P000003753
 ```
 
 ## Build

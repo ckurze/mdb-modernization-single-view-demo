@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: etl-mainframe-mongodb
+  labels:
+    app: etl-mainframe-mongodb
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: etl-mainframe-mongodb
+  template:
+    metadata:
+      labels:
+        app: etl-mainframe-mongodb
+    spec:
+      containers:
+        - name: etl-mainframe-mongodb
+          image: ckurze/etl-mainframe-mongodb
+          env:
+            - name: MONGO_URI
+              # For MongoDB Atlas, use a connection string as the following one
+              # value: mongodb://<USER>:<PASSWORD>@CLUSTER-PROJECT.mongodb.net:27017,CLUSTER-PROJECT.mongodb.net:27017,CLUSTER-PROJECT.mongodb.net:27017/test?ssl=true\&replicaSet=DemoCluster-shard-0\&authSource=admin\&retryWrites=true\&w=majority
+              # For MongoDB running in Kubernetes, please use a connection string as the following one
+              value: mongodb://my-replica-set-0.my-replica-set-svc.mongodb.svc.cluster.local:27017,my-replica-set-1.my-replica-set-svc.mongodb.svc.cluster.local:27017,my-replica-set-2.my-replica-set-svc.mongodb.svc.cluster.local:27017/test?replicaSet=my-replica-set
+            - name: ORACLE_URI
+#              value: jdbc:oracle:thin:@//IP_OR_HOSTNAME_OF_ORACLE:1521/XE
+              value: jdbc:oracle:thin:@//10.0.3.25:1521/XE

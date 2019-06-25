@@ -1,0 +1,58 @@
+{
+	start : {
+	    source: {
+	        uri: "MONGO_URI"
+	    },
+	    query: { 
+	        database: "insurance",
+	        collection: "customer" ,
+	        find: {last_change_car_customer:{$exists:1}},
+	        limit: 1,
+	        project: { _id: 0, last_change_car_customer: 1 },
+	        sort: { last_change_car_customer: -1 },
+	        default: { last_change_car_customer: "1970-01-01 00:00:00" }
+	    },
+	    target : {
+	        mode: "subsection",
+	        uri: "customersection",
+	    }
+	},
+	customersection: {
+		source: {
+			uri:  "ORACLE_URI",
+			user: "CARINSURANCE",
+			password: "carinsurance"
+		},
+		target: {
+			mode: "upsert",
+			uri: "MONGO_URI",
+			namespace: "insurance.customer"
+		},
+		template: {
+			$find: { customer_id: "$CUSTOMER_ID" },
+			$set: { 
+				customer_id: "$CUSTOMER_ID",
+				first_name: "$FIRST_NAME",
+				last_name : "$LAST_NAME",
+				gender: "$GENDER",
+				job: "$JOB",
+				email: "$EMAIL",
+				phone: "$PHONE",
+				number_children: "$NUMBER_CHILDREN",
+				marital_status: "$MARITAL_STATUS",
+				date_of_birth: "$DATE_OF_BIRTH",
+				address: {
+					street: "$STREET",
+					zip: "$ZIP",
+					city: "$CITY",
+					nationality: "$NATIONALITY"
+				},
+				last_change_car_customer: "$LC"
+			}
+		},
+		query:{
+		   sql: "SELECT CUSTOMER_ID,FIRST_NAME,LAST_NAME,GENDER,JOB,EMAIL,PHONE,NUMBER_CHILDREN,MARITAL_STATUS,STREET,ZIP,CITY,COUNTRY_CODE,NATIONALITY,to_char(date_of_birth, 'YYYY-MM-DD') as DOB,to_char(last_change, 'YYYY-MM-DD HH24:MI:SS') as LC FROM car_customer where to_char(last_change, 'YYYY-MM-DD HH24:MI:SS') > ?"
+		},
+		params : [ "last_change_car_customer" ]
+	}
+}

@@ -1,0 +1,115 @@
+{
+	start : {
+	    source: {
+	        uri: "MONGO_URI"
+	    },
+	    query: { 
+	        database: "insurance",
+	        collection: "customer" ,
+	        find: {last_change_car_policy:{$exists:1}},
+	        limit: 1,
+	        project: { _id: 0, last_change_car_policy: 1 },
+	        sort: { last_change_car_policy: -1 },
+	        default: { last_change_car_policy: "1970-01-01 00:00:00" }
+	    },
+	    target : {
+	        mode: "subsection",
+	        uri: "policy_pull_section,policy_push_section",
+	    }
+	},
+	policy_pull_section: {
+			source: {
+			uri:  "ORACLE_URI",
+			user: "CARINSURANCE",
+			password: "carinsurance"
+		},
+		target: {
+			mode: "update",
+			uri: "MONGO_URI",
+			namespace: "insurance.customer"
+		},
+		template: {
+			$find: { customer_id: "$CUSTOMER_ID" },
+			$pull: { 
+				car_insurance: { 
+					policy_id: "$POLICY_ID"
+				}
+			}
+		},
+		query:{
+			sql: "WITH max_claim AS (SELECT POLICY_ID, MAX(last_change) AS claim_last_change FROM CAR_CLAIM GROUP BY POLICY_ID) select p.policy_id, customer_id, cover_start, car_model, max_coverd, last_ann_premium_gross, to_char(last_change, 'YYYY-MM-DD HH24:MI:SS') as POLICY_LAST_CHANGE, to_char(mc.claim_last_change, 'YYYY-MM-DD HH24:MI:SS') AS CLAIM_LAST_CHANGE, GREATEST ( nvl(to_char(last_change, 'YYYY-MM-DD HH24:MI:SS'), '1970-01-01 00:00:00'), nvl(to_char(mc.claim_last_change, 'YYYY-MM-DD HH24:MI:SS'), '1970-01-01 00:00:00') ) AS max_last_change from car_policy p LEFT JOIN max_claim mc ON (p.POLICY_ID = mc.POLICY_ID) where to_char(last_change, 'YYYY-MM-DD HH24:MI:SS') > ? or to_char(mc.claim_last_change, 'YYYY-MM-DD HH24:MI:SS') > ? order by policy_id"
+		},
+		params : [ "last_change_car_policy", "last_change_car_policy" ]
+	},
+	policy_push_section: {
+		source: {
+			uri:  "ORACLE_URI",
+			user: "CARINSURANCE",
+			password: "carinsurance"
+		},
+		target: {
+			mode: "update",
+			uri: "MONGO_URI",
+			namespace: "insurance.customer"
+		},
+		template: {
+			$find: { customer_id: "$CUSTOMER_ID" },
+			$set: { 
+				last_change_car_policy: "$MAX_LAST_CHANGE"
+			},
+			$push: { 
+				car_insurance: { 
+					policy_id: "$POLICY_ID",
+					cover_start: "$COVER_START",
+					last_ann_premium_gross: "$LAST_ANN_PREMIUM_GROSS",
+					car_model: "$CAR_MODEL",
+					max_coverd: "$MAX_COVERD",
+					claim: [ "@claim_section" ]
+				}
+			}
+		},
+		query:{
+			sql: "WITH max_claim AS (SELECT POLICY_ID, MAX(last_change) AS claim_last_change FROM CAR_CLAIM GROUP BY POLICY_ID) select p.policy_id, customer_id, cover_start, car_model, replace(to_char(max_coverd),',','.') as max_coverd, replace(to_char(last_ann_premium_gross),',','.') as last_ann_premium_gross, to_char(last_change, 'YYYY-MM-DD HH24:MI:SS') as POLICY_LAST_CHANGE, to_char(mc.claim_last_change, 'YYYY-MM-DD HH24:MI:SS') AS CLAIM_LAST_CHANGE, GREATEST ( nvl(to_char(last_change, 'YYYY-MM-DD HH24:MI:SS'), '1970-01-01 00:00:00'), nvl(to_char(mc.claim_last_change, 'YYYY-MM-DD HH24:MI:SS'), '1970-01-01 00:00:00') ) AS max_last_change from car_policy p LEFT JOIN max_claim mc ON (p.POLICY_ID = mc.POLICY_ID) where to_char(last_change, 'YYYY-MM-DD HH24:MI:SS') > ? or to_char(mc.claim_last_change, 'YYYY-MM-DD HH24:MI:SS') > ? order by policy_id"
+		},
+		params : [ "last_change_car_policy", "last_change_car_policy" ]
+	},
+	claim_section: {
+		template: {
+			claim_id: "$CLAIM_ID",
+			claim_date: "$CLAIM_DATE",
+			settled_date: "$SETTLED_DATE",
+			claim_amount: "$CLAIM_AMOUNT",
+			settled_amount: "$SETTLED_AMOUNT",
+			claim_reason: "$CLAIM_REASON",
+			last_change: "$LAST_CHANGE"
+		},
+		query:{
+			sql: "SELECT CLAIM_ID, POLICY_ID,CLAIM_DATE,SETTLED_DATE,replace(to_char(CLAIM_AMOUNT),',','.') as  CLAIM_AMOUNT, replace(to_char(SETTLED_AMOUNT),',','.') as SETTLED_AMOUNT,CLAIM_REASON,to_char(last_change, 'YYYY-MM-DD HH24:MI:SS') AS LAST_CHANGE FROM car_claim order by policy_id"
+		},
+		mergeon: 'POLICY_ID'
+	}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	
+
+
+
+
+
+
+
+}

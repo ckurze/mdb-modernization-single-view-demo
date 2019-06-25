@@ -1,0 +1,172 @@
+{
+	start : {
+	    source: {
+	        uri: "MONGO_URI"
+	    },
+	    query: { 
+	        database: "insurance",
+	        collection: "customer" ,
+	        find: {last_change_home_policy:{$exists:1}},
+	        limit: 1,
+	        project: { _id: 0, last_change_home_policy: 1 },
+	        sort: { last_change_home_policy: -1 },
+	        default: { last_change_home_policy: "1970-01-01 00:00:00" }
+	    },
+	    target : {
+	        mode: "subsection",
+	        uri: "policy_pull_section,policy_push_section",
+	    }
+	},
+	policy_pull_section: {
+			source: {
+			uri:  "ORACLE_URI",
+			user: "HOMEINSURANCE",
+			password: "homeinsurance"
+		},
+		target: {
+			mode: "update",
+			uri: "MONGO_URI",
+			namespace: "insurance.customer"
+		},
+		template: {
+			$find: { customer_id: "$CUSTOMER_ID" },
+			$pull: { 
+				home_insurance: { 
+					policy_id: "$POLICY_ID"
+				}
+			}
+		},
+		query:{
+			sql: "WITH max_policy_coverage AS (SELECT POLICY_ID, MAX(last_change) AS coverage_last_change FROM POLICY_COVERAGE GROUP BY POLICY_ID), max_policy_risk AS (SELECT POLICY_ID, MAX(last_change) AS risk_last_change FROM POLICY_RISK GROUP BY POLICY_ID), max_policy_option AS (SELECT POLICY_ID, MAX(last_change) AS option_last_change FROM POLICY_OPTION GROUP BY POLICY_ID), max_claim AS (SELECT POLICY_ID, MAX(last_change) AS claim_last_change FROM CLAIM GROUP BY POLICY_ID) select p.policy_id, customer_id, quote_day, cover_start, last_ann_premium_gross, policy_status, to_char(last_change, 'YYYY-MM-DD HH24:MI:SS') as POLICY_LAST_CHANGE, to_char(mpc.coverage_last_change, 'YYYY-MM-DD HH24:MI:SS') AS COVERAGE_LAST_CHANGE, to_char(mpr.risk_last_change, 'YYYY-MM-DD HH24:MI:SS') AS RISK_LAST_CHANGE, to_char(mpo.option_last_change, 'YYYY-MM-DD HH24:MI:SS') AS OPTION_LAST_CHANGE, to_char(mc.claim_last_change, 'YYYY-MM-DD HH24:MI:SS') AS CLAIM_LAST_CHANGE, GREATEST ( nvl(to_char(last_change, 'YYYY-MM-DD HH24:MI:SS'), '1970-01-01 00:00:00'), nvl(to_char(mpc.coverage_last_change, 'YYYY-MM-DD HH24:MI:SS'), '1970-01-01 00:00:00'), nvl(to_char(mpr.risk_last_change, 'YYYY-MM-DD HH24:MI:SS'), '1970-01-01 00:00:00'), nvl(to_char(mpo.option_last_change, 'YYYY-MM-DD HH24:MI:SS'), '1970-01-01 00:00:00'), nvl(to_char(mc.claim_last_change, 'YYYY-MM-DD HH24:MI:SS'), '1970-01-01 00:00:00') ) AS max_last_change from policy p LEFT JOIN max_policy_coverage mpc ON (p.POLICY_ID = mpc.POLICY_ID) LEFT JOIN max_policy_risk mpr ON (p.POLICY_ID = mpr.POLICY_ID) LEFT JOIN max_policy_option mpo ON (p.POLICY_ID = mpo.POLICY_ID) LEFT JOIN max_claim mc ON (p.POLICY_ID = mc.POLICY_ID) where  to_char(last_change, 'YYYY-MM-DD HH24:MI:SS') > ? or to_char(mpc.coverage_last_change, 'YYYY-MM-DD HH24:MI:SS') > ? or to_char(mpr.risk_last_change, 'YYYY-MM-DD HH24:MI:SS') > ? or to_char(mpo.option_last_change, 'YYYY-MM-DD HH24:MI:SS') > ? or to_char(mc.claim_last_change, 'YYYY-MM-DD HH24:MI:SS') > ? order by policy_id"
+		},
+		params : [ "last_change_home_policy", "last_change_home_policy", "last_change_home_policy", "last_change_home_policy", "last_change_home_policy" ]
+	},
+	policy_push_section: {
+			source: {
+			uri:  "ORACLE_URI",
+			user: "HOMEINSURANCE",
+			password: "homeinsurance"
+		},
+		target: {
+			mode: "update",
+			uri: "MONGO_URI",
+			namespace: "insurance.customer"
+		},
+		template: {
+			$find: { customer_id: "$CUSTOMER_ID" },
+			$set: { 
+				last_change_home_policy: "$MAX_LAST_CHANGE"
+			},
+			$push: { 
+				home_insurance: { 
+					policy_id: "$POLICY_ID",
+					quote_day: "$QUOTE_DAY",
+					cover_start: "$COVER_START",
+					last_annual_premium_gross: "$LAST_ANN_PREMIUM_GROSS",
+					policy_status: "$POLICY_STATUS",
+					last_change: "$POLICY_LAST_CHANGE",
+					coverage: [ "@policy_coverage_section" ],
+					options: [ "@policy_option_section" ],
+					risk: [ "@policy_risk_section" ],
+					claim: [ "@claim_section" ] 
+				}
+			}
+		},
+		query:{
+			sql: "WITH max_policy_coverage AS (SELECT POLICY_ID, MAX(last_change) AS coverage_last_change FROM POLICY_COVERAGE GROUP BY POLICY_ID), max_policy_risk AS (SELECT POLICY_ID, MAX(last_change) AS risk_last_change FROM POLICY_RISK GROUP BY POLICY_ID), max_policy_option AS (SELECT POLICY_ID, MAX(last_change) AS option_last_change FROM POLICY_OPTION GROUP BY POLICY_ID), max_claim AS (SELECT POLICY_ID, MAX(last_change) AS claim_last_change FROM CLAIM GROUP BY POLICY_ID) select p.policy_id, customer_id, quote_day, cover_start, replace(to_char(last_ann_premium_gross),',','.') as last_ann_premium_gross, policy_status, to_char(last_change, 'YYYY-MM-DD HH24:MI:SS') as POLICY_LAST_CHANGE, to_char(mpc.coverage_last_change, 'YYYY-MM-DD HH24:MI:SS') AS COVERAGE_LAST_CHANGE, to_char(mpr.risk_last_change, 'YYYY-MM-DD HH24:MI:SS') AS RISK_LAST_CHANGE, to_char(mpo.option_last_change, 'YYYY-MM-DD HH24:MI:SS') AS OPTION_LAST_CHANGE, to_char(mc.claim_last_change, 'YYYY-MM-DD HH24:MI:SS') AS CLAIM_LAST_CHANGE, GREATEST ( nvl(to_char(last_change, 'YYYY-MM-DD HH24:MI:SS'), '1970-01-01 00:00:00'), nvl(to_char(mpc.coverage_last_change, 'YYYY-MM-DD HH24:MI:SS'), '1970-01-01 00:00:00'), nvl(to_char(mpr.risk_last_change, 'YYYY-MM-DD HH24:MI:SS'), '1970-01-01 00:00:00'), nvl(to_char(mpo.option_last_change, 'YYYY-MM-DD HH24:MI:SS'), '1970-01-01 00:00:00'), nvl(to_char(mc.claim_last_change, 'YYYY-MM-DD HH24:MI:SS'), '1970-01-01 00:00:00') ) AS max_last_change from policy p LEFT JOIN max_policy_coverage mpc ON (p.POLICY_ID = mpc.POLICY_ID) LEFT JOIN max_policy_risk mpr ON (p.POLICY_ID = mpr.POLICY_ID) LEFT JOIN max_policy_option mpo ON (p.POLICY_ID = mpo.POLICY_ID) LEFT JOIN max_claim mc ON (p.POLICY_ID = mc.POLICY_ID) where  to_char(last_change, 'YYYY-MM-DD HH24:MI:SS') > ? or to_char(mpc.coverage_last_change, 'YYYY-MM-DD HH24:MI:SS') > ? or to_char(mpr.risk_last_change, 'YYYY-MM-DD HH24:MI:SS') > ? or to_char(mpo.option_last_change, 'YYYY-MM-DD HH24:MI:SS') > ? or to_char(mc.claim_last_change, 'YYYY-MM-DD HH24:MI:SS') > ? order by policy_id"
+		},
+		params : [ "last_change_home_policy", "last_change_home_policy", "last_change_home_policy", "last_change_home_policy", "last_change_home_policy" ]
+	},
+	policy_coverage_section: {
+		template: {
+			type: "$TYPE",
+			sum_insured: "$SUM_INSURED",
+			malus_bonus: "$MALUS_BONUS",
+			last_change: "$LAST_CHANGE"
+		},
+		query:{
+			sql: "SELECT POLICY_ID,TYPE,COVERAGE,SUM_INSURED,MALUS_BONUS,to_char(last_change, 'YYYY-MM-DD HH24:MI:SS') as LAST_CHANGE FROM policy_coverage order by policy_id"
+		},
+		mergeon: 'POLICY_ID'
+	},
+	policy_option_section: {
+		template: {
+			legal_addon_pre_renewal: "$LGL_ADDON_PRE_REN",
+			legal_addon_post_renewal: "$LGL_ADDON_POST_REN",
+			home_addon_pre_renewal: "$HOME_EM_ADDON_PRE_REN",
+			home_addon_post_renewal: "$HOME_EM_ADDON_POST_REN",
+			garden_addon_pre_renewal: "$GARDEN_ADDON_PRE_REN",
+			garden_addon_post_renewal: "$GARDEN_ADDON_POST_REN",
+			keycare_addon_pre_renewal: "$KEYCARE_ADDON_PRE_REN",
+			keycare_addon_post_renewal: "$KEYCARE_ADDON_POST_REN",
+			last_change: "$LAST_CHANGE"
+		},
+		query:{
+			sql: "SELECT POLICY_ID,LGL_ADDON_PRE_REN,LGL_ADDON_POST_REN,HOME_EM_ADDON_PRE_REN,HOME_EM_ADDON_POST_REN,GARDEN_ADDON_PRE_REN,GARDEN_ADDON_POST_REN,KEYCARE_ADDON_PRE_REN,KEYCARE_ADDON_POST_REN,to_char(last_change, 'YYYY-MM-DD HH24:MI:SS') as LAST_CHANGE FROM policy_option order by policy_id"
+		},
+		mergeon: 'POLICY_ID'
+	},
+	policy_risk_section: {
+		template: {
+			risk_classification_building: "$RSK_CLASSIF_BLDG",
+			risk_classification_personal: "$RSK_CLASSIF_PRSNL",
+			appropriate_alarm: "$APPR_ALARM",
+			appropriate_locks: "$APPR_LOCKS",
+			number_bedrooms: "$BEDROOMS",
+			roof_construction: "$ROOF_CNSTRCTN",
+			wall_construction: "$WALL_CONSTRCTN",
+			flooding: "$FLOODING",
+			listed_property: "$LISTED",
+			max_days_unoccupied: "$MAX_DAYS_UNOCC",
+			neighborhood_watch: "$NEIGH_WATCH",
+			occupation_status: "$OCC_STATS",
+			ownership_type: "$OWNERSHIP_TYPE",
+			paying_guests: "$PAYING_GUESTS",
+			property_type: "$PROP_TYPE",
+			last_change: "$LAST_CHANGE"
+		},
+		query:{
+			sql: "SELECT POLICY_ID,RSK_CLASSIF_BLDG,RSK_CLASSIF_PRSNL,APPR_ALARM,APPR_LOCKS,BEDROOMS,ROOF_CNSTRCTN,WALL_CONSTRCTN,FLOODING,LISTED,MAX_DAYS_UNOCC,NEIGH_WATCH,OCC_STATS,OWNERSHIP_TYPE,PAYING_GUESTS,PROP_TYPE,SAFE_INSTALLED,YEARBUILT,to_char(last_change, 'YYYY-MM-DD HH24:MI:SS') as LAST_CHANGE FROM policy_risk order by policy_id"
+		},
+		mergeon: 'POLICY_ID'
+	},
+	claim_section: {
+		template: {
+			claim_date: "$CLAIM_DATE",
+			settled_date: "$SETTLED_DATE",
+			claim_type: "$CLAIM_TYPE",
+			claim_amount: "$CLAIM_AMOUNT",
+			settled_amount: "$SETTLED_AMOUNT",
+			claim_reason: "$CLAIM_REASON",
+			last_change: "$LAST_CHANGE"
+		},
+		query:{
+			sql: "SELECT POLICY_ID,CLAIM_DATE,SETTLED_DATE,CLAIM_TYPE,replace(to_char(CLAIM_AMOUNT),',','.') as  CLAIM_AMOUNT, replace(to_char(SETTLED_AMOUNT),',','.') as SETTLED_AMOUNT,CLAIM_REASON,to_char(last_change, 'YYYY-MM-DD HH24:MI:SS') as LAST_CHANGE FROM claim order by policy_id"
+		},
+		mergeon: 'POLICY_ID'
+	}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	
+
+
+
+
+
+
+
+}

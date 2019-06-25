@@ -5,7 +5,7 @@ metadata:
 spec:
   type: LoadBalancer
   selector:
-    app: mainframe # Label selector. The Service targets Pods that use this label
+    app: mainframe-service # Label selector. The Service targets Pods that use this label
   ports:
   - port: 8080 # Port of the service (internally)
 
@@ -13,18 +13,18 @@ spec:
 apiVersion: apps/v1 # for versions before 1.9.0 use apps/v1beta2
 kind: Deployment
 metadata:
-  name: mainframe
+  name: mainframe-service
   labels:
-    app: mainframe
+    app: mainframe-service
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: mainframe
+      app: mainframe-service
   template:
     metadata:
       labels:
-        app: mainframe
+        app: mainframe-service
     spec:
       containers:
       - image: ckurze/mainframe-service
