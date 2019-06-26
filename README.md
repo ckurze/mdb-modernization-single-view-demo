@@ -324,6 +324,8 @@ __4.2 Install Mainframe Web Application__
 
 TODO: We need to inject the correct API endpoint via variables to `APIUtils.js`. Until this is done, please modify `APIUtils.js` of the web application to point to the previously deployed endpoint. What the best way to achieve this in dynamically in Kubernetes?
 
+*Important:* You need to update `APIUtils.js` within the portal source code (as outlined in the [README](mainframe-portal/README.md)) and rebuild the docker image. The TODO above describes that we need to change this. 
+
 Install the Docker image into a pod as well as a service:
 ```
 kubectl apply -f mainframe-portal/deployment/deployment.yaml
@@ -405,6 +407,8 @@ http://35.246.137.XXX:4000/customer/all?home_insurance.policy_id=P000003753
 __5.2 Install Insurance Web Application__
 
 TODO: We need to inject the correct API endpoint via variables to `APIUtils.js`. Until this is done, please modify `APIUtils.js` of the web application to point to the previously deployed endpoint and rebuild the docker image. What the best way to achieve this in dynamically in Kubernetes?
+
+*Important:* You need to update `APIUtils.js` within the portal source code (as outlined in the [README](insurance-portal/README.md)) and rebuild the docker image. The TODO above describes that we need to change this. 
 
 Install the Docker image into a pod as well as a service:
 ```
