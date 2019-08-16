@@ -1,0 +1,42 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: insurance-service-service
+spec:
+  type: LoadBalancer
+  selector:
+    app: insurance-service
+  ports:
+  - port: 8080
+    targetPort: 4000
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: insurance-service
+  labels:
+    app: insurance-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: insurance-service
+  template:
+    metadata:
+      labels:
+        app: insurance-service
+    spec:
+      containers:
+      - name: insurance-service
+        image: ckurze/insurance-service
+        ports:
+        - containerPort: 4000
+          protocol: TCP
+        env:
+        - name: ENV
+          value: "development"
+        - name: PORT
+          value: "4000"
+        - name: DB
+          value: "mongodb://insurance-replicaset-0.insurance-replicaset-svc.mongodb.svc.cluster.local:27017,insurance-replicaset-1.insurance-replicaset-svc.mongodb.svc.cluster.local:27017,insurance-replicaset-2.insurance-replicaset-svc.mongodb.svc.cluster.local:27017/insurance?replicaSet=insurance-replicaset"

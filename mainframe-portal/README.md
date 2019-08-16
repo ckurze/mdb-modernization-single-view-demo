@@ -14,14 +14,20 @@ With the "Create Car Insurance Claim' screen a new claim can be created. The for
 
 ## Development and Test
 
-Run the application via `npm start`
+For Development: Create a file called `.env` in the root directory providing the IP:PORT of the mainframe service (or create an environment variable), e.g.:
+```
+REACT_APP_API=35.242.150.158:8080
+```
+
+Run the application via `npm run start`. It will automatically read the values from `.env`.
 
 Notes:
 * Assumption is that the first command is executed from the directory `mainframe-portal`
 * `npm install` is only required for the first time or when dependencies change
+* The proper location of the mainframe service needs to be passed as an environment variable `REACT_APP_API`
 
 ```
-host$ docker run -it --rm -v $(pwd):/home/app -p 3000:3000  node:9.5 /bin/bash
+host$ docker run -it --rm -v $(pwd):/home/app -p 3000:3000 -e "REACT_APP_API=YOUR_IP_HERE:PORT" node:9.5 /bin/bash
 container$ cd /home/app
 container$ npm install
 container$ npm start
@@ -70,7 +76,7 @@ docker push ckurze/mainframe-portal
 
 After building the docker image, it can be run with:
 ```
-host$ docker run -d -p 3000:3000 --name=mainframe-portal ckurze/mainframe-portal
+host$ docker run -d -p 3000:3000 -e "REACT_APP_API=YOUR_IP_HERE:PORT" --name=mainframe-portal ckurze/mainframe-portal
 ```
 
 Open a browser pointing at http://localhost:3000/

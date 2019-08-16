@@ -1,6 +1,10 @@
 import sleep from 'sleep-promise'
 
-const api = "http://localhost:8080/car"
+console.log("process.env")
+console.log(process.env)
+console.log("Mainframe Service expected to run on: " + process.env.REACT_APP_API)
+
+const api = "http://" + process.env['REACT_APP_API'] + "/car"
 
 const headers = {
     'Accept': 'application/json'

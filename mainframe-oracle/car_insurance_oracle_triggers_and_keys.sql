@@ -30,3 +30,5 @@ CREATE OR REPLACE TRIGGER trg_carpo_last_update
    END;
 / 
 
+EXEC DBMS_STATS.gather_schema_stats('CARINSURANCE');
+/

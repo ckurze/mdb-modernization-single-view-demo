@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "dotenv": "8.0.0",
     "fixed-data-table-2": "^0.8.11",
     "qs": "^6.5.1",
     "query-string": "^6.0.0",

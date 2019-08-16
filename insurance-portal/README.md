@@ -2,14 +2,20 @@
 
 ## Development and Test
 
-Run the application via `npm start`
+For Development: Create a file called `.env` in the root directory providing the IP:PORT of the insurance service (or create an environment variable), e.g.:
+```
+REACT_APP_API=35.242.150.158:8080
+```
+Run the application via `npm run start`. It will automatically read the values from `.env`.
 
 Notes:
 * Assumption is that the first command is executed from the directory `insurance-portal`
 * `npm install` is only required for the first time or when dependencies change
+* The proper location of the insurance service needs to be passed as an environment variable `REACT_APP_API`
 
 ```
-host$ docker run -it --rm -v $(pwd):/home/app -w /home/app -p 3001:3000  node:9.5 /bin/bash
+host$ docker run -it --rm -v $(pwd):/home/app -w /home/app -p 3001:3000 -e "REACT_APP_API=YOUR_IP_HERE:PORT" node:9.5 /bin/bash
+container$ cd /home/app
 container$ npm install
 container$ npm start
 ```
@@ -58,7 +64,7 @@ docker push ckurze/insurance-portal
 
 After building the docker image, it can be run with:
 ```
-host$ docker run -d -p 3001:3000 --name=insurance-portal ckurze/insurance-portal
+host$ docker run -d -p 3001:3000 -e "REACT_APP_API=YOUR_IP_HERE:PORT" --name=insurance-portal ckurze/insurance-portal
 ```
 
 Open a browser pointing at http://localhost:3001/

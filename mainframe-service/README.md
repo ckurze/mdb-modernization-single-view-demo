@@ -40,7 +40,7 @@ Example maven settings.xml (Hint: Always use encrypted passwords as outlined her
 </settings>
 ```
 
-## Run the Service
+## Run the Service ##
 After building the docker image, it can be run with:
 ```
 docker run \
@@ -54,4 +54,16 @@ docker run \
 
 It includes environment parameter to configure the timezone (TZ, needed for the Oracle connection to work as it automatically injects the timezone from the environment).
 
- 
+## Test the Service ##
+
+The following endpoints should work now:
+```
+# List of all customers:
+http://35.234.79.XXX:8080/car/customer/all
+
+# Individual customer (id must exist, copy from an arbitrary customer of the /all endpoint:
+http://35.234.79.XXX:8080/car/customer/C000014831
+
+# Individual policy:
+http://35.234.79.XXX:8080/car/policy/PC_000000002
+```

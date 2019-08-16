@@ -8,3 +8,5 @@ target
 oracle/deployment/persistent/kustomization.yaml
 node_modules/
 target/
+mongodb-enterprise-kubernetes
+*.work.yaml

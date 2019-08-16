@@ -1,6 +1,0 @@
-cx_Oracle
-faker
-mimesis
-pymongo
-sqlalchemy
-pandas

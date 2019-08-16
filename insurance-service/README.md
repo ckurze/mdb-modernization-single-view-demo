@@ -61,7 +61,6 @@ docker run \
 -t ckurze/insurance-service
 ```
 
-
 ## Deploy to Kubernetes Cluster
 
 This example uses a minishift installation, should also work on minikube and other Kubernetes implementations.
@@ -79,3 +78,29 @@ oc new-project insurance
 kubectl apply -f packaging/deployment.yaml
 kubectl apply -f packaging/service.yaml
 ```
+
+## Test Calls
+
+The following endpoints should work now:
+```
+# List of all customers (paginated with 100 customers):
+http://35.246.137.XXX:4000/customer
+http://35.246.137.XXX:4000/customer?page=2
+http://35.246.137.XXX:4000/customer?page=3
+
+# All parameters, except 'page' are transformed into a query.
+# Get customer with particular ID:
+http://35.246.137.XXX:4000/customer?customer_id=C000038970
+# Get customer with a particular home insurance policy:
+http://35.246.137.XXX:4000/customer?home_insurance.policy_id=P000003753
+
+# List of all customers (NOT paginated):
+http://35.246.137.XXX:4000/customer/all
+
+# All parameters, except 'page' are transformed into a query.
+# Get customer with particular ID:
+http://35.246.137.XXX:4000/customer/all?customer_id=C000038970
+# Get customer with a particular home insurance policy:
+http://35.246.137.XXX:4000/customer/all?home_insurance.policy_id=P000003753
+```
+

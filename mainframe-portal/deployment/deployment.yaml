@@ -19,4 +19,7 @@ spec:
           image: ckurze/mainframe-portal
           ports:
             - containerPort: 3000
+          env:
+            - name: REACT_APP_API
+              value: SERVICE_IP_ADDRESS:8080
 

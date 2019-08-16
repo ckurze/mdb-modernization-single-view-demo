@@ -5,6 +5,8 @@ The data loader is implemented using MongoSyphon (https://github.com/johnlpage/M
 
 Please note that the error handling is marginal, i.e. loads should not be stopped as they are only check once for a maximum last_changed date. If the inital load breaks, restarting will not work and data from MongoDB should be deleted.
 
+As a little helper, a java project has been created that creates the necessary index on `customer_id` in the collection `insurance.customer`.
+
 ## Build
 In order to build the deployable container, execute:
 ```

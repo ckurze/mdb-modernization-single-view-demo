@@ -1,6 +1,7 @@
 FROM openjdk:8
 WORKDIR /usr/etl-mainframe-mongodb
 COPY ./MongoSyphon.jar /usr/etl-mainframe-mongodb/
+COPY ./ensure-mongodb-indexes/bin/EnsureMongoDBIndexes.jar /usr/etl-mainframe-mongodb/
 COPY ./index.sh /usr/etl-mainframe-mongodb/
 COPY ./car_insurance_customers_cdc.json /usr/etl-mainframe-mongodb/car_insurance_customers_cdc.json
 COPY ./car_insurance_customers_cdc.json /usr/etl-mainframe-mongodb/car_insurance_customers_cdc_work.json

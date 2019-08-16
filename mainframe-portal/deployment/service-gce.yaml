@@ -7,6 +7,6 @@ spec:
     app: mainframe-portal
   ports:
   - protocol: TCP
-    port: 30100
+    port: 8080
     targetPort: 3000
   type: LoadBalancer

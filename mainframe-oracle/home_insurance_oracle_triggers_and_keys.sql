@@ -55,3 +55,7 @@ CREATE OR REPLACE TRIGGER trg_cl_last_update
       :NEW.last_change := sysdate;
    END;
 /
+
+EXEC DBMS_STATS.gather_schema_stats('HOMEINSURANCE');
+/
+

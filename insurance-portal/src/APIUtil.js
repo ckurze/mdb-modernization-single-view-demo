@@ -1,4 +1,9 @@
-const api = "http://localhost:4000"
+
+console.log("process.env")
+console.log(process.env)
+console.log("Insurance Service expected to run on: " + process.env.REACT_APP_API)
+
+const api = "http://" + process.env['REACT_APP_API']
 
 const headers = {
     'Accept': 'application/json'

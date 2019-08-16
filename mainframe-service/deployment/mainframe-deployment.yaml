@@ -1,7 +1,7 @@
 kind: Service
 apiVersion: v1
 metadata:
-  name: mainframe-service # Service name
+  name: mainframe-service-service # Service name
 spec:
   type: LoadBalancer
   selector:
@@ -29,6 +29,8 @@ spec:
       containers:
       - image: ckurze/mainframe-service
         name: mainframe-service
+        ports:
+          - containerPort: 8080
         env:
           - name: TZ
             value: CET

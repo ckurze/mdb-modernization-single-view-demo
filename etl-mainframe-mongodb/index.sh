@@ -2,6 +2,8 @@
 while true
 do
 	echo "Press CTRL+C to stop the script execution"
+
+	java -jar EnsureMongoDBIndexes.jar "$MONGO_URI"
 	
 	# Prepare the car insurance customer CDC process with environment variables.	
 	rm car_insurance_customers_cdc_work.json
