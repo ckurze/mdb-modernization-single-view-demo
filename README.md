@@ -41,6 +41,11 @@ As the demo requires multiple resources, Kubernetes is a good way to deploy the 
 ### Prerequisites ###
 
 * Tested on GKE cluster with the following specification: Kubernetes 1.12.8-gke.10; 3 Nodes (n1-standard-2 - 2 vCPUs, 7.5 GB RAM)
+* **Important Configuration Settings of OpsManager/Cloud Manager**:
+  * Whitelist entry for GCP IP ranges for RESTful API calls: 35.246.0.0/8 (Verify the IP range with the public IP of your CKE cluster)
+  * The pods will download the agent from OpsManager, therefore the public URL to access ops manager (`Admin -> OpsManager Config -> URL To Access Ops Manaber`) should be something like `http://ec2-54-93-222-189.eu-central-1.compute.amazonaws.com:8080` and has to be accessible by the pods via the public internet.
+  * It the proconditions are not met, you will only see the servers, but no MongoDB processes in the Ops Manager project.
+  * For troubleshooting, see the log of the pod running MongoDB Enterprise Kubernetes Operator.
 
 ### Execute Deployment ###
 
