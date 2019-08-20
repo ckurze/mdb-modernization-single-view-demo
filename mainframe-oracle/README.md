@@ -66,3 +66,28 @@ __1.3 Create Constraints__
 
 Create Primary and Foregin Keys as well as Triggers in Oracle to reflect Change Data Capture.
 Execute the SQL code provided in ```home_insurance_oracle_triggers_and_keys.sql``` as well as ```car_insurance_oracle_triggers_and_keys.sql```. These scripts will create triggers that update the last_change timestamp for each insert or update as well as foreign keys for the sake of completeness.
+
+__2. Local Deployment in a VM via Vagrant__
+
+A vagrant file to spin up Oracle in a local virtual machine is available: `deployment/vagrant/Vagrantfile`.
+
+It requires VirtualBox or Parallels to be installed (tested with VirtualBox 5.2.x). Please execute:
+```
+cd mainframe-oracle/deployment/vagrant/
+
+# Initial startup of virtual machine:
+vagrant up
+
+# Stop the virtual machine and keep the data (restart via 'vagrant up'):
+vagrant stop
+
+# Delete the virtual machine, incl. all data:
+vagrant delete
+```
+
+You can login into the virtual machine via:
+```
+vagrant ssh
+```
+
+The folder `shared` is mounted into `/vagrant` and can be used for data exchange between the VM and the host machine.

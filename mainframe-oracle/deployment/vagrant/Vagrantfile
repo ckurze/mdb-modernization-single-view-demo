@@ -1,0 +1,31 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant.configure("2") do |config|
+  config.vm.box = "woznial/centos-6.3-oracle-xe" #"centos73_vbox533" #"bento/centos-7.2"
+  config.vm.box_check_update = false
+  config.ssh.insert_key = false
+  config.vm.synced_folder "shared/", "/vagrant", :mount_options => ['dmode=777', 'fmode=777']
+  config.vm.provider "parallels" do |v, override|
+      override.vm.synced_folder "shared/", "/vagrant", mount_options: ["share"]
+  end
+
+  config.vm.define :oracle do |server|
+    server.vm.provider "virtualbox" do |vb|
+      vb.name = "oracle"
+      vb.cpus = 2
+      vb.memory = 4096
+    end
+
+    server.vm.provider "parallels" do |vb|
+      vb.name = "oracle"
+      vb.cpus = 2
+      vb.memory = 4096
+    end
+
+    server.vm.hostname = "oracle.vagrant.dev"
+    server.vm.network :private_network, ip: '192.168.14.200'
+    server.vm.network :forwarded_port, guest: 2150, host: 2150
+  end
+
+end
