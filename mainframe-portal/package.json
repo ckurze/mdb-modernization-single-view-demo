@@ -5,7 +5,7 @@
   "dependencies": {
     "dotenv": "8.0.0",
     "fixed-data-table-2": "^0.8.11",
-    "qs": "^6.5.1",
+    "qs": "^6.5.3",
     "query-string": "^6.0.0",
     "react": "^16.2.0",
     "react-dom": "^16.2.0",
